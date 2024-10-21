@@ -1,0 +1,62 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: Ichaka
+    username: Phils  # Replace with your username
+    password: "$6$F3RvWa0YAoD8wLeB$..Z50caCMz0ENHImJoQRAuRfgyC/KIiW2xsGF38GRIczK2GzHPWTLDtQgIRjoF7zFnMEQcU.lncfsOf1OsyuQ0"  # Replace with the hashed password
+  packages:
+    - 7zip
+    - apache2
+    - apt
+    - docker-ce
+    - docker-compose-plugin
+    - code
+    - curl
+    - git
+    - kubectl
+    - azure-cli
+    - build-essential
+    - python3
+    - redis-server
+    - vim
+    - wget
+    - conntrack  # Required for Minikube
+    - gpaste  # Clipboard management tool
+  keyboard:
+    layout: us
+  locale: en_US
+  storage:
+    layout:
+      name: lvm
+  user-data:
+    users:
+      - name: your-username
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        groups: sudo, docker
+  ssh:
+    install-server: true
+  network:
+    version: 2
+    ethernets:
+      ens160:
+        dhcp4: true
+  late-commands:
+    # Install Minikube
+    - wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 -O /usr/local/bin/minikube
+    - chmod +x /usr/local/bin/minikube
+
+    # Install VSCode
+    - wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+    - install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/
+    - sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+    - apt update
+    - apt install -y code
+
+    # Install pgAdmin4
+    - curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /etc/apt/trusted.gpg.d/pgadmin.gpg
+    - echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/ubuntu focal pgadmin4" | tee /etc/apt/sources.list.d/pgadmin4.list && apt update
+    - apt install -y pgadmin4
+
+    # Install GPaste
+    - apt install -y gpaste
